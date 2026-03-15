@@ -2,6 +2,13 @@ import express from 'express';
 import {ENV} from './lib/env.js'
 import path from "path";
 import { fileURLToPath } from 'url';
+import {connectDB} from './lib/db.js';
+import dns from 'dns';
+
+
+if (ENV.NODE_ENV === 'development') {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+}
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,6 +36,15 @@ app.get('/{*any}',(req,res)=>{
 
 
 
-app.listen(ENV.PORT,()=>{
-    console.log(`Started running on port ${ENV.PORT}`);
-})
+
+const startServer = async ()=>{
+  try{
+    await connectDB();
+    app.listen(ENV.PORT,()=>{console.log(`Started running on port ${ENV.PORT}`);})
+  }catch(err){
+    console.error("Error Occured while starting the server",err);
+  }
+}
+
+
+startServer();

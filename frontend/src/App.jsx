@@ -8,7 +8,7 @@ function App() {
        <header>
         <Show when="signed-out">
           <SignInButton mode='modal'/>
-          <SignUpButton mode='model'/>
+          <SignUpButton mode='modal'/>
         </Show> 
         <Show when="signed-in">
           <SignOutButton />

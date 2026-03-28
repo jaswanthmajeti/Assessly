@@ -4,6 +4,9 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import {connectDB} from './lib/db.js';
 import dns from 'dns';
+import cors from 'cors';
+import {serve} from 'inngest'
+import { functions} from './lib/inngest.js';
 
 
 if (ENV.NODE_ENV === 'development') {
@@ -14,6 +17,9 @@ if (ENV.NODE_ENV === 'development') {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+app.use(express.json());
+app.use(cors({origin:ENV.CLIENT_URL,credentials:true}));
+app.use("/api/inngest",serve({client:inngest,functions}));
 
 
 app.get("/home", (req, res) => {

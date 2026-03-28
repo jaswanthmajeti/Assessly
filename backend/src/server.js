@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import {connectDB} from './lib/db.js';
 import dns from 'dns';
 import cors from 'cors';
-import {serve} from 'inngest'
+import {serve} from 'inngest/express'
 import { functions,inngest} from './lib/inngest.js';
 
 

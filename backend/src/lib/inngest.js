@@ -1,4 +1,4 @@
-import inngest, { Inngest } from 'inngest'
+import { Inngest } from 'inngest'
 import {connectDB} from './db.js'
 import User from '../models/User.js'
 
@@ -20,7 +20,12 @@ const syncUser = inngest.createFunction(
       name:`${first_name || ""} ${last_name || ""}`,
       profileImage:image_url
     }
-    await User.create(newUser)
+    
+    await User.updateOne(
+      { clerkId: id },
+      { $set: newUser },
+      { upsert: true }
+    );
   },
 );
 

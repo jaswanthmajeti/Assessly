@@ -6,7 +6,7 @@ import {connectDB} from './lib/db.js';
 import dns from 'dns';
 import cors from 'cors';
 import {serve} from 'inngest'
-import { functions} from './lib/inngest.js';
+import { functions,inngest} from './lib/inngest.js';
 
 
 if (ENV.NODE_ENV === 'development') {

@@ -6,7 +6,8 @@ import User from '../models/User.js'
 export const inngest = new Inngest({id:"Assessly"});
 
 const syncUser = inngest.createFunction(
-  { id: "sync-user", triggers: [{ event: "clerk/user.created" }] },
+  { id: "sync-user" },
+  { event: "clerk/user.created" },
   async ({ event}) => {
     await connectDB();
     const {id,email_address,first_name,last_name,image_url} = event.data;
@@ -31,7 +32,8 @@ const syncUser = inngest.createFunction(
 
 
 const deleteUserFromDB = inngest.createFunction(
-  { id: "delete-user-from-db", triggers: [{ event: "clerk/user.deleted" }] },
+  { id: "delete-user-from-db"},
+  { event: "clerk/user.deleted" },
   async ({ event}) => {
     await connectDB();
     const {id} = event.data;

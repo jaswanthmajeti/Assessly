@@ -7,7 +7,9 @@ import dns from 'dns';
 import cors from 'cors';
 import {serve} from 'inngest/express'
 import { functions,inngest} from './lib/inngest.js';
-
+import {clerkMiddleware} from '@clerk/express'; 
+import { protectRoute } from './middleware/protectRoute.js';
+import chatRoutes from './routes/chatRoutes.js';
 
 if (ENV.NODE_ENV === 'development') {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -19,8 +21,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
 app.use(cors({origin:ENV.CLIENT_URL,credentials:true}));
-app.use("/api/inngest",serve({client:inngest,functions}));
+app.use(clerkMiddleware());
 
+app.use("/api/inngest",serve({client:inngest,functions}));
+app.use("/api/chat",chatRoutes);
 
 app.get("/home", (req, res) => {
   res.status(200).send("Hello , welcome to the website");

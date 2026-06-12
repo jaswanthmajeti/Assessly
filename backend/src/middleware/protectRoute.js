@@ -5,7 +5,7 @@ export const protectRoute = [
     requireAuth(),//{signInUrl:'/sign-in'} to the function
     async (req,res,next)=>{
         try{
-            const clerkId = req.auth().userId;
+            const clerkId = req.auth.userId;
             if(!clerkId) return res.status(401).json({msg:"Unauthorized - invalid token"});
             const user = await User.findOne({clerkId});
             if(!user) return res.status(404).json({msg:"User not found"});

@@ -10,6 +10,7 @@ import { functions,inngest} from './lib/inngest.js';
 import {clerkMiddleware} from '@clerk/express'; 
 import { protectRoute } from './middleware/protectRoute.js';
 import chatRoutes from './routes/chatRoutes.js';
+import sessionRoutes from './routes/sessionRoutes.js';
 
 if (ENV.NODE_ENV === 'development') {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -25,6 +26,7 @@ app.use(clerkMiddleware());
 
 app.use("/api/inngest",serve({client:inngest,functions}));
 app.use("/api/chat",chatRoutes);
+app.use("/api/session",sessionRoutes);
 
 app.get("/home", (req, res) => {
   res.status(200).send("Hello , welcome to the website");

@@ -12,7 +12,7 @@ import { protectRoute } from './middleware/protectRoute.js';
 import chatRoutes from './routes/chatRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 
-if (ENV.NODE_ENV === 'development') {
+if (ENV.NODE_ENV === 'development') { // Fix DNS SRV resolution issues for MongoDBAtlas on some local networks
   dns.setServers(['8.8.8.8', '1.1.1.1']);
 }
 

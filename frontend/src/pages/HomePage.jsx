@@ -24,7 +24,7 @@ function HomePage() {
             {/* <div className="size-10 rounded-xl bg-linear-to-br from-primary via-secondary to-accent flex items-center justify-center shadow-lg">
               <SparklesIcon className="size-6 text-white" />
             </div> */}
-            <img src="logo.png" alt="Assessly logo" height="50px" width="50px"/>
+            <img src="logo.png" alt="Assessly logo" height="40px" width="40px"/>
 
             <div className="flex flex-col">
               <span className="font-black text-xl bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-mono tracking-wider">

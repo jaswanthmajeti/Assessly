@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { PROBLEMS } from "../data/problems";
 import Navbar from "../components/Navbar";
@@ -7,7 +7,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import ProblemDescription from "../components/ProblemDescription";
 import OutputPanel from "../components/OutputPanel";
 import CodeEditorPanel from "../components/CodeEditorPanel";
-import { executeCode } from "../lib/piston";
+import { executeCode } from "../lib/judge0";
 
 import toast from "react-hot-toast";
 import confetti from "canvas-confetti";
@@ -18,29 +18,37 @@ function ProblemPage() {
 
   const [currentProblemId, setCurrentProblemId] = useState("two-sum");
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
-  const [code, setCode] = useState(PROBLEMS[currentProblemId].starterCode.javascript);
+  const [code, setCode] = useState(
+    PROBLEMS["two-sum"].starterCode.javascript
+  );
   const [output, setOutput] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
 
+  // Prevent stale execution results
+  const activeRunIdRef = useRef(0);
+
   const currentProblem = PROBLEMS[currentProblemId];
 
-  // update problem when URL param changes
+  // Update problem when URL param changes
   useEffect(() => {
     if (id && PROBLEMS[id]) {
       setCurrentProblemId(id);
       setCode(PROBLEMS[id].starterCode[selectedLanguage]);
       setOutput(null);
     }
-  }, [id, selectedLanguage]);
+  }, [id,selectedLanguage]);
 
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
+
     setSelectedLanguage(newLang);
     setCode(currentProblem.starterCode[newLang]);
     setOutput(null);
   };
 
-  const handleProblemChange = (newProblemId) => navigate(`/problem/${newProblemId}`);
+  const handleProblemChange = (newProblemId) => {
+    navigate(`/problem/${newProblemId}`);
+  };
 
   const triggerConfetti = () => {
     confetti({
@@ -57,17 +65,14 @@ function ProblemPage() {
   };
 
   const normalizeOutput = (output) => {
-    // normalize output for comparison (trim whitespace, handle different spacing)
     return output
       .trim()
       .split("\n")
       .map((line) =>
         line
           .trim()
-          // remove spaces after [ and before ]
           .replace(/\[\s+/g, "[")
           .replace(/\s+\]/g, "]")
-          // normalize spaces around commas to single space after comma
           .replace(/\s*,\s*/g, ",")
       )
       .filter((line) => line.length > 0)
@@ -78,31 +83,51 @@ function ProblemPage() {
     const normalizedActual = normalizeOutput(actualOutput);
     const normalizedExpected = normalizeOutput(expectedOutput);
 
-    return normalizedActual == normalizedExpected;
+    return normalizedActual === normalizedExpected;
   };
 
   const handleRunCode = async () => {
+    const runId = ++activeRunIdRef.current;
+
     setIsRunning(true);
     setOutput(null);
 
-    const result = await executeCode(selectedLanguage, code);
-    setOutput(result);
-    setIsRunning(false);
+    try {
+      const result = await executeCode(selectedLanguage, code);
 
-    // check if code executed successfully and matches expected output
+      // Ignore stale responses
+      if (runId !== activeRunIdRef.current) return;
 
-    if (result.success) {
-      const expectedOutput = currentProblem.expectedOutput[selectedLanguage];
-      const testsPassed = checkIfTestsPassed(result.output, expectedOutput);
+      setOutput(result);
 
-      if (testsPassed) {
-        triggerConfetti();
-        toast.success("All tests passed! Great job!");
+      if (result.success) {
+        const expectedOutput =
+          currentProblem.expectedOutput[selectedLanguage];
+
+        const testsPassed = checkIfTestsPassed(
+          result.output,
+          expectedOutput
+        );
+
+        if (testsPassed) {
+          triggerConfetti();
+          toast.success("All tests passed! Great job!");
+        } else {
+          toast.error("Tests failed. Check your output!");
+        }
       } else {
-        toast.error("Tests failed. Check your output!");
+        toast.error("Code execution failed!");
       }
-    } else {
-      toast.error("Code execution failed!");
+    } catch (err) {
+      console.error(err);
+
+      if (runId !== activeRunIdRef.current) return;
+
+      toast.error("Something went wrong while executing code!");
+    } finally {
+      if (runId === activeRunIdRef.current) {
+        setIsRunning(false);
+      }
     }
   };
 
@@ -112,7 +137,8 @@ function ProblemPage() {
 
       <div className="flex-1">
         <PanelGroup direction="horizontal">
-          {/* left panel- problem desc */}
+
+          {/* Left panel - Problem Description */}
           <Panel defaultSize={40} minSize={30}>
             <ProblemDescription
               problem={currentProblem}
@@ -124,10 +150,11 @@ function ProblemPage() {
 
           <PanelResizeHandle className="w-2 bg-base-300 hover:bg-primary transition-colors cursor-col-resize" />
 
-          {/* right panel- code editor & output */}
+          {/* Right panel */}
           <Panel defaultSize={60} minSize={30}>
             <PanelGroup direction="vertical">
-              {/* Top panel - Code editor */}
+
+              {/* Code Editor */}
               <Panel defaultSize={70} minSize={30}>
                 <CodeEditorPanel
                   selectedLanguage={selectedLanguage}
@@ -141,13 +168,14 @@ function ProblemPage() {
 
               <PanelResizeHandle className="h-2 bg-base-300 hover:bg-primary transition-colors cursor-row-resize" />
 
-              {/* Bottom panel - Output Panel*/}
-
+              {/* Output Panel */}
               <Panel defaultSize={30} minSize={30}>
                 <OutputPanel output={output} />
               </Panel>
+
             </PanelGroup>
           </Panel>
+
         </PanelGroup>
       </div>
     </div>

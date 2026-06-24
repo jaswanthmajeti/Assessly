@@ -8,9 +8,9 @@ import { getDifficultyBadgeClass } from "../lib/utils";
 function ProblemsPage() {
   const problems = Object.values(PROBLEMS);
 
-  const easyProblemsCount = problems.filter((p) => p.difficulty === "Easy").length;
-  const mediumProblemsCount = problems.filter((p) => p.difficulty === "Medium").length;
-  const hardProblemsCount = problems.filter((p) => p.difficulty === "Hard").length;
+  const easyProblemsCount = problems.filter((p) => p.difficulty.toLowerCase() === "easy").length;
+  const mediumProblemsCount = problems.filter((p) => p.difficulty.toLowerCase() === "medium").length;
+  const hardProblemsCount = problems.filter((p) => p.difficulty.toLowerCase() === "hard").length;
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -45,7 +45,8 @@ function ProblemsPage() {
                         <div className="flex items-center gap-2 mb-1">
                           <h2 className="text-xl font-bold">{problem.title}</h2>
                           <span className={`badge ${getDifficultyBadgeClass(problem.difficulty)}`}>
-                            {problem.difficulty}
+                            {problem.difficulty.slice(0, 1).toUpperCase() +
+                            problem.difficulty.slice(1)}
                           </span>
                         </div>
                         <p className="text-sm text-base-content/60"> {problem.category}</p>

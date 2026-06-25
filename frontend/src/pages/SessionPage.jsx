@@ -83,9 +83,14 @@ function SessionPage() {
     setIsRunning(true);
     setOutput(null);
 
-    const result = await executeCode(selectedLanguage, code);
-    setOutput(result);
-    setIsRunning(false);
+    try {
+      const result = await executeCode(selectedLanguage, code);
+      setOutput(result);
+    } catch (error) {
+      setOutput({ error: error?.message || "Failed to execute code" });
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   const handleEndSession = () => {
@@ -129,8 +134,7 @@ function SessionPage() {
                             session?.difficulty
                           )}`}
                         >
-                          {session?.difficulty.slice(0, 1).toUpperCase() +
-                            session?.difficulty.slice(1) || "Easy"}
+                         {session?.difficulty ? session.difficulty.slice(0, 1).toUpperCase() + session.difficulty.slice(1): "Easy"}
                         </span>
                         {isHost && session?.status === "active" && (
                           <button
